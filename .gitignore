@@ -6,3 +6,4 @@
 
 # Ignorar arquivos de ambiente
 .env
+.vercel
