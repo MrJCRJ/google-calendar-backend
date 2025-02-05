@@ -38,14 +38,13 @@ Este é um backend em Node.js que se integra à API do Google Calendar para list
 
 4. **Inicie o servidor:**
 
-```bash
-npm start
-```
+   ```bash
+   npm start
+   ```
 
 5. **Acesse as rotas:**
 
 - Autenticação: http://localhost:3000/auth/google
-
 - Listar eventos: http://localhost:3000/events
 
 ## Exemplo de Resposta da API
@@ -83,28 +82,21 @@ google-calendar-backend/
 ├── app.js               # Ponto de entrada do servidor
 ├── README.md            # Documentação do projeto
 └── package.json         # Dependências do projeto
-
 ```
 
 ## Dependências
 
 - express: Framework para criar o servidor.
-
 - googleapis: Biblioteca para integrar com a API do Google.
-
 - dotenv: Carregar variáveis de ambiente.
 
 ## Como Contribuir
 
-Faça um fork do repositório.
-
-Crie uma branch para sua feature (git checkout -b feature/nova-feature).
-
-Commit suas mudanças (git commit -m 'Adiciona nova feature').
-
-Faça push para a branch (git push origin feature/nova-feature).
-
-Abra um Pull Request.
+1. Faça um fork do repositório.
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`).
+3. Commit suas mudanças (`git commit -m 'Adiciona nova feature'`).
+4. Faça push para a branch (`git push origin feature/nova-feature`).
+5. Abra um Pull Request.
 
 ## Licença
 
@@ -119,18 +111,20 @@ Este projeto está licenciado sob a MIT License. Veja o arquivo LICENSE para mai
 
 2. **Inicialize o Git no Seu Projeto:**
    No terminal, dentro da pasta do seu projeto, execute:
+
    ```bash
-    git init
-    git add .
-    git commit -m "Primeiro commit: backend para integrar com Google Calendar"
+   git init
+   git add .
+   git commit -m "Primeiro commit: backend para integrar com Google Calendar"
    ```
+
 3. **Conecte o Repositório Local ao GitHub:**
 
-```bash
-  git remote add origin https://github.com/seu-usuario/google-calendar-backend.git
-  git branch -M main
-  git push -u origin main
-```
+   ```bash
+   git remote add origin https://github.com/seu-usuario/google-calendar-backend.git
+   git branch -M main
+   git push -u origin main
+   ```
 
 4. **Acesse o Repositório no GitHub:**
 
