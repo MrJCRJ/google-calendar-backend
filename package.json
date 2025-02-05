@@ -6,8 +6,9 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "googleapis": "^120.0.0",
-    "dotenv": "^16.0.3"
+    "googleapis": "^120.0.0"
   }
 }
