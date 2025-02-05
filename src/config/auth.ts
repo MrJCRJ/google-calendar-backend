@@ -1,6 +1,5 @@
-// config/auth.js
-const { google } = require('googleapis');
-const dotenv = require('dotenv');
+import { google } from "googleapis";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -10,4 +9,4 @@ const oauth2Client = new google.auth.OAuth2(
   process.env.REDIRECT_URI
 );
 
-module.exports = oauth2Client;
+export default oauth2Client;

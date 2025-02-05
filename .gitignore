@@ -1,2 +1,8 @@
-/.env
+# Ignorar a pasta dist
+/dist
+
+# Ignorar node_modules
 /node_modules
+
+# Ignorar arquivos de ambiente
+.env
