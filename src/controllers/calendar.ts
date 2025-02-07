@@ -116,7 +116,7 @@ export const handleAuthCallback = async (
     saveTokens(tokens);
 
     // Redireciona o usuário de volta para o frontend com o token
-    const frontendUrl = redirect || "http://localhost:3001";
+    const frontendUrl = redirect || "http://localhost:3000";
     console.log(`[LOG] Redirecionando para ${frontendUrl} com token.`);
     res.redirect(`${frontendUrl}?token=${tokens.access_token}`);
   } catch (error: any) {

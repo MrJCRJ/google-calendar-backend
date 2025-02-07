@@ -7,3 +7,4 @@
 # Ignorar arquivos de ambiente
 .env
 .vercel
+tokens.json
