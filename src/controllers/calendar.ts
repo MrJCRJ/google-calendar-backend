@@ -59,12 +59,19 @@ export const listEvents = async (
       return;
     }
 
-    console.log("[LOG] Buscando eventos do Google Calendar...");
+    const { startDate, endDate } = req.query;
+    console.log(
+      `[LOG] Buscando eventos entre ${startDate || "∞"} e ${endDate || "∞"}...`
+    );
+
     const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+
     const response = await calendar.events.list({
       calendarId: "primary",
-      timeMin: new Date().toISOString(),
-      maxResults: 10,
+      timeMin: startDate
+        ? new Date(startDate as string).toISOString()
+        : undefined,
+      timeMax: endDate ? new Date(endDate as string).toISOString() : undefined,
       singleEvents: true,
       orderBy: "startTime",
     });
