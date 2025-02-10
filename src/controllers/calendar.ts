@@ -66,19 +66,43 @@ export const listEvents = async (
 
     const calendar = google.calendar({ version: "v3", auth: oauth2Client });
 
+    console.log(
+      `[DEBUG] timeMin: ${new Date(startDate as string).toISOString()}`
+    );
+    console.log(
+      `[DEBUG] timeMax: ${new Date(
+        new Date(endDate as string).setUTCHours(23, 59, 59, 999)
+      ).toISOString()}`
+    );
+
     const response = await calendar.events.list({
       calendarId: "primary",
       timeMin: startDate
         ? new Date(startDate as string).toISOString()
         : undefined,
-      timeMax: endDate ? new Date(endDate as string).toISOString() : undefined,
+      timeMax: endDate
+        ? new Date(
+            new Date(endDate as string).setUTCHours(23, 59, 59, 999)
+          ).toISOString()
+        : undefined,
       singleEvents: true,
       orderBy: "startTime",
     });
 
     const formattedEvents = formatEvents(response.data.items || []);
+
+    // 🔹 Filtro para garantir que só eventos dentro do intervalo sejam considerados
+    const filteredEvents = formattedEvents.filter((event) => {
+      if (!startDate) return true; // Se startDate não foi definido, não filtra nada
+
+      const eventStart = new Date(event.start).toISOString();
+      return eventStart >= String(startDate); // Garante que startDate é uma string
+    });
     console.log(`[LOG] ${formattedEvents.length} eventos encontrados.`);
-    res.json(formattedEvents);
+    console.log(
+      `[LOG] ${filteredEvents.length} eventos filtrados corretamente.`
+    );
+    res.json(filteredEvents);
   } catch (error: any) {
     console.error(`[ERRO] Falha ao buscar eventos: ${error.message}`);
     res.status(500).send("Erro ao buscar eventos: " + error.message);
