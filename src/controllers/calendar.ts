@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import { google } from "googleapis";
+import { google, calendar_v3 } from "googleapis";
+import type { GaxiosResponse } from "gaxios";
 import fs from "fs";
 import path from "path";
 import oauth2Client from "../config/auth";
@@ -36,12 +37,14 @@ const loadTokens = () => {
 loadTokens();
 
 // Função para formatar os eventos
-const formatEvents = (events: any[]): FormattedEvent[] => {
+const formatEvents = (events: calendar_v3.Schema$Event[]) => {
   return events.map((event) => ({
+    id: event.id,
     title: event.summary,
-    start: event.start.dateTime || event.start.date,
-    end: event.end.dateTime || event.end.date,
+    start: event.start?.dateTime || event.start?.date,
+    end: event.end?.dateTime || event.end?.date,
     link: event.htmlLink,
+    description: event.description,
   }));
 };
 
@@ -59,50 +62,60 @@ export const listEvents = async (
       return;
     }
 
-    const { startDate, endDate } = req.query;
-    console.log(
-      `[LOG] Buscando eventos entre ${startDate || "∞"} e ${endDate || "∞"}...`
-    );
+    // Obtenha as datas de início e fim da consulta
+    let { startDate, endDate, clientTimeZone } = req.query;
+    console.log(`[LOG] Fuso horário do cliente: ${clientTimeZone}`);
+    const currentYear = new Date().getFullYear();
+
+    // Se não forem fornecidos, use datas padrão do ano atual NO FUSO DO CLIENTE
+    if (!startDate || !endDate) {
+      // Converta para UTC mantendo o horário local
+      startDate = `${currentYear}-01-01T00:00:00.000-03:00`;
+      endDate = `${currentYear}-12-31T23:59:59.999-03:00`;
+
+      console.warn(
+        `[WARN] Datas padrão usadas (UTC): ${startDate} até ${endDate}`
+      );
+    } else {
+      // Converta as datas do cliente (em seu fuso) para UTC
+      startDate = String(startDate);
+      endDate = String(endDate);
+    }
+
+    console.log(`[LOG] Buscando eventos entre ${startDate} e ${endDate}...`);
 
     const calendar = google.calendar({ version: "v3", auth: oauth2Client });
 
-    console.log(
-      `[DEBUG] timeMin: ${new Date(startDate as string).toISOString()}`
-    );
-    console.log(
-      `[DEBUG] timeMax: ${new Date(
-        new Date(endDate as string).setUTCHours(23, 59, 59, 999)
-      ).toISOString()}`
-    );
+    let allEvents: calendar_v3.Schema$Event[] = [];
+    let pageToken: string | undefined = undefined;
 
-    const response = await calendar.events.list({
-      calendarId: "primary",
-      timeMin: startDate
-        ? new Date(startDate as string).toISOString()
-        : undefined,
-      timeMax: endDate
-        ? new Date(
-            new Date(endDate as string).setUTCHours(23, 59, 59, 999)
-          ).toISOString()
-        : undefined,
-      singleEvents: true,
-      orderBy: "startTime",
-    });
+    do {
+      // Defina explicitamente o tipo da resposta
+      const response: GaxiosResponse<calendar_v3.Schema$Events> =
+        await calendar.events.list({
+          calendarId: "primary",
+          timeMin: startDate,
+          timeMax: endDate,
+          singleEvents: true,
+          orderBy: "startTime",
+          maxResults: 2500, // Limite máximo da API
+          pageToken: pageToken,
+        }); // Defina o tipo da resposta
 
-    const formattedEvents = formatEvents(response.data.items || []);
+      const data = response.data as calendar_v3.Schema$Events;
 
-    // 🔹 Filtro para garantir que só eventos dentro do intervalo sejam considerados
-    const filteredEvents = formattedEvents.filter((event) => {
-      if (!startDate) return true; // Se startDate não foi definido, não filtra nada
+      if (data.items) {
+        allEvents = allEvents.concat(data.items);
+      }
 
-      const eventStart = new Date(event.start).toISOString();
-      return eventStart >= String(startDate); // Garante que startDate é uma string
-    });
+      pageToken = response.data.nextPageToken ?? undefined; // Se houver mais páginas, continua a busca
+    } while (pageToken);
+
+    const formattedEvents = formatEvents(allEvents);
+
     console.log(`[LOG] ${formattedEvents.length} eventos encontrados.`);
-    console.log(
-      `[LOG] ${filteredEvents.length} eventos filtrados corretamente.`
-    );
-    res.json(filteredEvents);
+
+    res.json(formattedEvents);
   } catch (error: any) {
     console.error(`[ERRO] Falha ao buscar eventos: ${error.message}`);
     res.status(500).send("Erro ao buscar eventos: " + error.message);
