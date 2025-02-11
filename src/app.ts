@@ -10,7 +10,7 @@ app.use(
   cors({
     origin: "*", // Permite todas as origens (apenas para teste)
     methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "Timezone"],
     credentials: true,
   })
 );

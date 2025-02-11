@@ -63,15 +63,17 @@ export const listEvents = async (
     }
 
     // Obtenha as datas de início e fim da consulta
-    let { startDate, endDate, clientTimeZone } = req.query;
+    let { startDate, endDate } = req.query;
+    const clientTimeZone = req.headers["timezone"];
+
     console.log(`[LOG] Fuso horário do cliente: ${clientTimeZone}`);
     const currentYear = new Date().getFullYear();
 
     // Se não forem fornecidos, use datas padrão do ano atual NO FUSO DO CLIENTE
     if (!startDate || !endDate) {
       // Converta para UTC mantendo o horário local
-      startDate = `${currentYear}-01-01T00:00:00.000-03:00`;
-      endDate = `${currentYear}-12-31T23:59:59.999-03:00`;
+      startDate = `${currentYear}-01-01T00:00:00.000${clientTimeZone}`;
+      endDate = `${currentYear}-12-31T23:59:59.999${clientTimeZone}`;
 
       console.warn(
         `[WARN] Datas padrão usadas (UTC): ${startDate} até ${endDate}`
