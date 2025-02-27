@@ -10,7 +10,7 @@ const app = express();
 // Configura o CORS para permitir requisições do frontend
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "https://google-calendar-frontend-seven.vercel.app",
     methods: ["GET"],
     allowedHeaders: ["Content-Type", "Authorization", "Timezone"],
     credentials: true,
